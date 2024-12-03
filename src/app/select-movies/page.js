@@ -2,9 +2,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import LoadingOverlay from "@/components/LoadingOverlay";
 import MovieGrid from "@/components/MovieGrid";
 import SelectionHeader from "@/components/SelectionHeader";
-import LoadingOverlay from "@/components/LoadingOverlay";
 
 const MOVIE_POSTERS = {
   "The Shawshank Redemption":
@@ -38,7 +39,7 @@ const MOVIE_POSTERS = {
   "Jurassic Park":
     "https://m.media-amazon.com/images/M/MV5BMjM2MDgxMDg0Nl5BMl5BanBnXkFtZTgwNTM2OTM5NDE@._V1_.jpg",
   "The Departed":
-    "https://m.media-amazon.com/images/M/MV5BMTI1MTY2OTI4NF5BMl5BanBnXkFtZTYwNjQ4NjY3._V1_.jpg",
+    "https://m.media-amazon.com/images/I/81ZOilPKzYL._AC_UF1000,1000_QL80_.jpg",
   Goodfellas:
     "https://m.media-amazon.com/images/M/MV5BY2NkZjEzMDgtN2RjYy00YzM1LWI4ZmQtMjIwYjFjNmI3ZGEwXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_.jpg",
   Se7en:
@@ -59,6 +60,7 @@ const movies = Object.entries(MOVIE_POSTERS).map(([title, poster], index) => ({
 }));
 
 export default function SelectMovies() {
+  const router = useRouter();
   const [selectedMovies, setSelectedMovies] = useState([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
@@ -66,8 +68,14 @@ export default function SelectMovies() {
     if (selectedMovies.length === 5) {
       setIsAnalyzing(true);
       try {
+        // Her ville du normalt sende data til din ML backend
         await new Promise((resolve) => setTimeout(resolve, 3000));
-        console.log("Valgte film IDs:", selectedMovies);
+
+        // Gem de valgte film i localStorage eller en anden state management løsning
+        localStorage.setItem("selectedMovies", JSON.stringify(selectedMovies));
+
+        // Naviger til anbefalingssiden
+        router.push("/recommendations");
       } catch (error) {
         console.error("Fejl ved analyse af film:", error);
         alert("Der skete en fejl under analysen. Prøv venligst igen.");
