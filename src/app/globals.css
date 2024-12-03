@@ -4,37 +4,104 @@
 
 :root {
   --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 17, 24, 39;
-  --background-end-rgb: 17, 24, 39;
+  --background-start-rgb: 10, 10, 10;
+  --background-end-rgb: 0, 0, 0;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes text-shine {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-gradient {
+  animation: gradient 15s ease infinite;
+  background-size: 400% 400%;
+}
+
+.animate-text-shine {
+  animation: text-shine 3s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-    to bottom,
-    rgb(var(--background-start-rgb)),
-    rgb(var(--background-end-rgb))
-  );
+  background: rgb(var(--background-start-rgb));
+  min-height: 100vh;
 }
 
+/* Refined hover transitions */
+.movie-card {
+  @apply transition-all duration-400 ease-in-out;
+}
+
+/* Loading animation */
 @keyframes loading-bar {
-  0% {
-    width: 0%;
-  }
-  50% {
-    width: 70%;
-  }
-  75% {
-    width: 85%;
-  }
-  90% {
-    width: 95%;
-  }
-  100% {
-    width: 100%;
-  }
+  0% { width: 0%; }
+  50% { width: 70%; }
+  75% { width: 85%; }
+  90% { width: 95%; }
+  100% { width: 100%; }
 }
 
 .animate-loading-bar {
   animation: loading-bar 3s ease-in-out infinite;
+}
+
+/* Modern button styles */
+.btn-primary {
+  @apply relative inline-flex items-center justify-center px-8 py-4 
+         bg-white/10 backdrop-blur-sm
+         text-white font-bold rounded-lg 
+         transition-all duration-400 ease-in-out
+         hover:bg-white/20
+         border border-white/10
+         hover:border-white/20;
+}
+
+.btn-secondary {
+  @apply relative inline-flex items-center justify-center px-8 py-4
+         bg-white/5 backdrop-blur-sm
+         text-white font-bold rounded-lg
+         border border-white/10
+         transition-all duration-400 ease-in-out
+         hover:bg-white/10;
+}
+
+/* Glass card effect */
+.glass-card {
+  @apply bg-black/20 backdrop-blur-xl 
+         border border-white/5 rounded-xl
+         shadow-xl;
+}
+
+/* Hover effects */
+.hover-glow {
+  @apply relative transition-all duration-300;
+}
+
+.hover-glow::after {
+  @apply content-[''] absolute inset-0 
+         rounded-lg opacity-0 transition-opacity 
+         bg-white/10
+         blur-xl;
+}
+
+.hover-glow:hover::after {
+  @apply opacity-100;
 }
