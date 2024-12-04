@@ -128,3 +128,4 @@ body {
 .hover-glow:hover::after {
   @apply opacity-100;
 }
+
