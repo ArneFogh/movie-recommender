@@ -1,3 +1,4 @@
+// TextGenerateEffect.js
 "use client";
 
 import React, { useEffect } from "react";
@@ -7,7 +8,7 @@ const TextGenerateEffect = ({
   words,
   className = "",
   filter = true,
-  duration = 0.4, // Reduceret fra 0.5 til 0.3
+  duration = 0.4,
 }) => {
   const [scope, animate] = useAnimate();
   const wordsArray = words.split(" ");
@@ -21,10 +22,10 @@ const TextGenerateEffect = ({
       },
       {
         duration: duration || 1,
-        delay: (i) => i * 0.1, // Reduceret fra 0.2 til 0.1
+        delay: (i) => i * 0.1,
       }
     );
-  }, [scope.current, animate, duration, filter]);
+  }, [animate, duration, filter]); // Removed scope.current from dependencies
 
   const renderWords = () => {
     return (

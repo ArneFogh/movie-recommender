@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Heart,
   Play,
@@ -86,11 +87,15 @@ export default function RecommendationsPage() {
                   hover:scale-105 hover:shadow-2xl"
                 >
                   {/* Poster */}
-                  <img
-                    src={movie.poster}
-                    alt={movie.title}
-                    className="w-full aspect-[2/3] object-cover"
-                  />
+                  <div className="relative w-full aspect-[2/3]">
+                    <Image
+                      src={movie.poster}
+                      alt={movie.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 20vw"
+                    />
+                  </div>
 
                   {/* Hover Overlay */}
                   <div
@@ -167,11 +172,13 @@ export default function RecommendationsPage() {
 
                       <div className="flex flex-col md:flex-row gap-6">
                         {/* Poster */}
-                        <div className="md:w-1/3">
-                          <img
+                        <div className="md:w-1/3 relative aspect-[2/3]">
+                          <Image
                             src={movie.poster}
                             alt={movie.title}
-                            className="w-full rounded-xl shadow-2xl"
+                            fill
+                            className="rounded-xl object-cover"
+                            sizes="(max-width: 768px) 100vw, 33vw"
                           />
                         </div>
 

@@ -1,3 +1,6 @@
+// MovieGrid.js
+import Image from "next/image";
+
 export default function MovieGrid({
   movies,
   selectedMovies,
@@ -31,11 +34,13 @@ export default function MovieGrid({
         >
           {/* Poster Container */}
           <div className="aspect-[2/3] relative">
-            <img
+            <Image
               src={movie.poster}
               alt={movie.title}
-              className="w-full h-full object-cover"
-              loading="lazy"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
+              priority={movie.id <= 5} // Priority loading for first 5 images
             />
 
             {/* Selection Overlay */}

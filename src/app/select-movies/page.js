@@ -69,7 +69,6 @@ export default function SelectMovies() {
             />
           </div>
           {/* Continue Button */}
-          // Continue Button Section
           <div className="fixed bottom-8 right-8 z-20">
             <button
               onClick={handleSubmit}
