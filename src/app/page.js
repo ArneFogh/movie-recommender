@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { Play } from "lucide-react";
 import TextGenerateEffect from "@/components/TextGenerateEffect";
+import AnimatedButton from "@/components/AnimatedButton";
 
 export default function LandingPage() {
   const description =
@@ -16,9 +15,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background-lighter to-background animate-gradient" />
 
         <div className="absolute inset-0">
-          {/* Ændret til rød glow */}
           <div className="absolute top-0 left-0 w-96 h-96 bg-rose-500/5 rounded-full blur-3xl" />
-          {/* Beholdt den varme amber */}
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
         </div>
 
@@ -56,17 +53,12 @@ export default function LandingPage() {
                 Vælg 5 film fra vores top 20, og vi anbefaler 10 film til dig
               </p>
 
-              {/* CTA Button - Opdateret med rød gradient */}
-              <Link
-                href="/select-movies"
-                className="group relative inline-flex items-center justify-center"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-rose-500/20 via-orange-500/20 to-amber-500/20 rounded-lg blur-md opacity-75 group-hover:opacity-100 transition-opacity" />
-                <div className="relative px-8 py-4 bg-white/10 rounded-lg border border-white/10 transition-transform group-hover:translate-y-[-2px] group-hover:translate-x-[2px]">
-                  <span className="text-lg font-semibold mr-2">Kom i gang</span>
-                  <Play className="inline-block w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
+              {/* New Animated Button */}
+              <div className="flex justify-center">
+                <AnimatedButton href="/select-movies">
+                  Kom i gang
+                </AnimatedButton>
+              </div>
             </div>
           </div>
         </div>

@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes shimmer {
+  100% {
+    transform: translateX(200%);
+  }
+}
+
 :root {
   --foreground-rgb: 255, 255, 255;
   --background-start-rgb: 10, 10, 10;
