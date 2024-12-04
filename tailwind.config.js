@@ -13,9 +13,9 @@ module.exports = {
       },
       colors: {
         background: {
-          DEFAULT: "#121212",
-          lighter: "#1E1E1E",
-          card: "#262626",
+          DEFAULT: "#0a0a0a", // Mørkere varm sort
+          lighter: "#1a1a1a", // Lysere varm sort
+          card: "#262626", // Bibeholder denne da den fungerer godt med dine cards
         },
         text: {
           primary: "#FFFFFF",
