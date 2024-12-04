@@ -24,12 +24,12 @@ export default function LandingPage() {
 
       {/* Main content */}
       <div className="relative z-10">
-        <div className="min-h-screen flex items-center justify-center px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="p-8 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/5 shadow-2xl">
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="w-full max-w-6xl mx-auto text-center">
+            <div className="p-8 md:p-12 lg:p-16 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/5 shadow-2xl mx-4">
               {/* Main heading */}
-              <div className="relative inline-block mb-6">
-                <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tight">
+              <div className="relative inline-block mb-8">
+                <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
                   Find din næste
                   <span className="bg-clip-text text-transparent bg-gradient-to-r from-rose-500 via-orange-400 to-amber-400 animate-text-shine">
                     {" "}
@@ -41,15 +41,15 @@ export default function LandingPage() {
               </div>
 
               {/* Product description with text generate effect */}
-              <div className="mb-8">
+              <div className="mb-12">
                 <TextGenerateEffect
                   words={description}
-                  className="text-lg max-w-2xl mx-auto leading-relaxed"
+                  className="text-xl lg:text-2xl max-w-4xl mx-auto leading-relaxed"
                 />
               </div>
 
               {/* How it works */}
-              <p className="text-xl md:text-2xl mb-12 text-gray-300 max-w-2xl mx-auto leading-relaxed font-display">
+              <p className="text-2xl md:text-3xl mb-12 text-gray-300 max-w-3xl mx-auto leading-relaxed font-display">
                 Vælg 5 film fra vores top 20, og vi anbefaler 10 film til dig
               </p>
 
