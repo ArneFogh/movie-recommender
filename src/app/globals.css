@@ -129,3 +129,42 @@ body {
   @apply opacity-100;
 }
 
+@keyframes waveHeight {
+  0%, 100% {
+    height: 40px;
+  }
+  50% {
+    height: 80px;
+  }
+}
+
+@keyframes smoothPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes processingHeight {
+  0%, 100% {
+    height: 8px;
+  }
+  50% {
+    height: 24px;
+  }
+}
+
+@keyframes processingPulse {
+  0%, 100% {
+    opacity: 0.4;
+    height: 12px;
+  }
+  50% {
+    opacity: 1;
+    height: 16px;
+  }
+}

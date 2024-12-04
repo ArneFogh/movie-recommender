@@ -60,7 +60,6 @@ export default function SelectMovies() {
               Valgte film: {selectedMovies.length}/5
             </p>
           </div>
-
           {/* Movie Grid Section */}
           <div className="p-8 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/5 shadow-2xl mb-20">
             <MovieGrid
@@ -69,27 +68,92 @@ export default function SelectMovies() {
               setSelectedMovies={setSelectedMovies}
             />
           </div>
-
           {/* Continue Button */}
+          // Continue Button Section
           <div className="fixed bottom-8 right-8 z-20">
             <button
               onClick={handleSubmit}
               disabled={selectedMovies.length !== 5}
-              className={`relative px-8 py-4 rounded-xl backdrop-blur-sm transition-all duration-300
-                ${
-                  selectedMovies.length === 5
-                    ? "bg-gradient-to-r from-rose-500/20 via-orange-500/20 to-amber-500/20 hover:from-rose-500/30 hover:via-orange-500/30 hover:to-amber-500/30 text-white scale-100"
-                    : "bg-gray-800/50 text-gray-400 cursor-not-allowed scale-95"
-                }
-                font-semibold text-lg shadow-xl border border-white/10 hover:border-white/20`}
+              className={`group relative px-8 py-4 rounded-xl transition-all duration-300 
+      ${
+        selectedMovies.length === 5
+          ? "hover:scale-105 scale-100"
+          : "opacity-70 cursor-not-allowed scale-95 hover:scale-95"
+      }`}
             >
-              <div className="absolute inset-0 rounded-xl bg-black/20 backdrop-blur-sm -z-10" />
-              {selectedMovies.length === 5
-                ? "Fortsæt"
-                : `Vælg ${5 - selectedMovies.length} film mere`}
+              {/* Animated background gradient */}
+              <div
+                className={`absolute inset-0 rounded-xl transition-opacity duration-300
+      bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500
+      ${
+        selectedMovies.length === 5
+          ? "opacity-20 group-hover:opacity-30"
+          : "opacity-5"
+      }`}
+              />
+
+              {/* Shine effect */}
+              <div className="absolute inset-0 rounded-xl overflow-hidden">
+                <div
+                  className={`absolute inset-0 translate-x-[-100%] 
+        bg-gradient-to-r from-transparent via-white/10 to-transparent
+        ${selectedMovies.length === 5 ? "animate-[shimmer_2s_infinite]" : ""}`}
+                />
+              </div>
+
+              {/* Glass overlay */}
+              <div className="absolute inset-0 rounded-xl bg-black/20 backdrop-blur-sm" />
+              <div className="absolute inset-[1px] rounded-xl bg-black/90" />
+
+              {/* Border */}
+              <div
+                className={`absolute inset-0 rounded-xl border 
+      transition-colors duration-300
+      ${
+        selectedMovies.length === 5
+          ? "border-white/20 group-hover:border-white/40"
+          : "border-white/5"
+      }`}
+              />
+
+              {/* Button content */}
+              <div className="relative flex items-center gap-2">
+                <span
+                  className={`text-lg font-medium transition-colors duration-300
+        ${selectedMovies.length === 5 ? "text-white" : "text-gray-400"}`}
+                >
+                  {selectedMovies.length === 5 ? (
+                    <>
+                      Fortsæt
+                      <span className="ml-2 inline-block transition-transform duration-300 group-hover:translate-x-1">
+                        →
+                      </span>
+                    </>
+                  ) : (
+                    `Vælg ${5 - selectedMovies.length} film mere`
+                  )}
+                </span>
+              </div>
+
+              {/* Processing dots - only show when enabled */}
+              {selectedMovies.length === 5 && (
+                <div className="absolute -bottom-7 left-1/2 transform -translate-x-1/2">
+                  <div className="flex gap-1.5">
+                    {[...Array(3)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-1 h-1 rounded-full bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500"
+                        style={{
+                          animation: "processingPulse 1s ease infinite",
+                          animationDelay: `${i * 0.2}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </button>
           </div>
-
           {isAnalyzing && <LoadingOverlay />}
         </div>
       </div>
