@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import SimpleLoadingOverlay from "@/components/SimpleLoadingOverlay";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import MovieGrid from "@/components/MovieGrid";
 import ContinueButton from "@/components/ContinueButton";
@@ -30,7 +31,7 @@ export default function SelectMovies() {
             poster: movie.poster_link.replace(
               "._V1_UX67_CR0,0,67,98_",
               "._V1_SX500_"
-            ), // Højere opløsning
+            ),
             year: movie.released_year,
             rating: movie.imdb_rating,
             overview: movie.overview,
@@ -72,7 +73,7 @@ export default function SelectMovies() {
   };
 
   if (isLoading) {
-    return <LoadingOverlay />;
+    return <SimpleLoadingOverlay />;
   }
 
   return (
