@@ -17,7 +17,7 @@ export default function SelectMovies() {
   // Helper funktion til at checke om et billede eksisterer
   const checkImageExists = async (url) => {
     try {
-      const res = await fetch(url, { method: 'HEAD' });
+      const res = await fetch(url, { method: "HEAD" });
       return res.ok;
     } catch (error) {
       return false;
@@ -25,20 +25,25 @@ export default function SelectMovies() {
   };
 
   // Helper funktion til at behandle film data
-  const processMovieData = (movie) => ({
-    id: movie.series_title.replace(/\s+/g, "-").toLowerCase(),
-    title: movie.series_title,
-    poster: movie.poster_link.replace(
-      "._V1_UX67_CR0,0,67,98_",
-      "._V1_SX500_"
-    ),
-    year: movie.released_year,
-    rating: movie.imdb_rating,
-    overview: movie.overview,
-    director: movie.director,
-    stars: movie.stars,
-    genre: movie.genre,
-  });
+  const processMovieData = (movie) => {
+    // Find base URL'en ved at fjerne alle størrelsesparametre
+    const baseUrl = movie.poster_link.split("._V1_")[0];
+
+    // Tilføj høj opløsning (1000px bred)
+    const highResUrl = `${baseUrl}._V1_SX1000.jpg`;
+
+    return {
+      id: movie.series_title.replace(/\s+/g, "-").toLowerCase(),
+      title: movie.series_title,
+      poster: highResUrl,
+      year: movie.released_year,
+      rating: movie.imdb_rating,
+      overview: movie.overview,
+      director: movie.director,
+      stars: movie.stars,
+      genre: movie.genre,
+    };
+  };
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -62,12 +67,14 @@ export default function SelectMovies() {
           );
 
           // Filtrer film med eksisterende posters
-          const validMovies = moviesWithValidation.filter(movie => movie.posterExists);
+          const validMovies = moviesWithValidation.filter(
+            (movie) => movie.posterExists
+          );
 
           // Vælg 30 tilfældige film fra de validerede film
           const shuffledMovies = [...validMovies]
             .sort(() => Math.random() - 0.5)
-            .slice(0, 30);
+            .slice(0, 25);
 
           setMovies(shuffledMovies);
         }
