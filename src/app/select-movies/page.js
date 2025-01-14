@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import SimpleLoadingOverlay from "@/components/SimpleLoadingOverlay";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -13,24 +13,13 @@ export default function SelectMovies() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const moviesPerPage = 10;
 
-  // Helper funktion til at checke om et billede eksisterer
-  const checkImageExists = async (url) => {
-    try {
-      const res = await fetch(url, { method: "HEAD" });
-      return res.ok;
-    } catch (error) {
-      return false;
-    }
-  };
-
-  // Helper funktion til at behandle film data
-  const processMovieData = (movie) => {
-    // Find base URL'en ved at fjerne alle størrelsesparametre
+  // Flyt data processering til en memoized funktion
+  const processMovieData = useCallback((movie) => {
     const baseUrl = movie.poster_link.split("._V1_")[0];
-
-    // Tilføj høj opløsning (1000px bred)
-    const highResUrl = `${baseUrl}._V1_SX1000.jpg`;
+    const highResUrl = `${baseUrl}._V1_SX500.jpg`;
 
     return {
       id: movie.series_title.replace(/\s+/g, "-").toLowerCase(),
@@ -43,9 +32,29 @@ export default function SelectMovies() {
       stars: movie.stars,
       genre: movie.genre,
     };
-  };
+  }, []);
+
+  // Flyt billede validering til en separat funktion
+  const validateImage = useCallback(async (url) => {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const res = await fetch(url, {
+        method: "HEAD",
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      return res.ok;
+    } catch (error) {
+      return false;
+    }
+  }, []);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchMovies = async () => {
       try {
         const { database } = await import("@/config/firebase");
@@ -54,39 +63,44 @@ export default function SelectMovies() {
         const moviesRef = ref(database, "movies");
         const snapshot = await get(moviesRef);
 
-        if (snapshot.exists()) {
+        if (snapshot.exists() && isMounted) {
           const moviesData = snapshot.val();
-          const allMovies = Object.values(moviesData).map(processMovieData);
+          const processedMovies =
+            Object.values(moviesData).map(processMovieData);
 
-          // Validér alle film-posters parallelt
+          // Validér alle film-posters parallelt med timeout
           const moviesWithValidation = await Promise.all(
-            allMovies.map(async (movie) => {
-              const posterExists = await checkImageExists(movie.poster);
+            processedMovies.map(async (movie) => {
+              const posterExists = await validateImage(movie.poster);
               return { ...movie, posterExists };
             })
           );
 
-          // Filtrer film med eksisterende posters
-          const validMovies = moviesWithValidation.filter(
-            (movie) => movie.posterExists
-          );
+          // Filtrer og shuffle - vi gør dette hver gang for at få et nyt udvalg
+          if (isMounted) {
+            const validMovies = moviesWithValidation
+              .filter((movie) => movie.posterExists)
+              .sort(() => Math.random() - 0.5)
+              .slice(0, 30);
 
-          // Vælg 30 tilfældige film fra de validerede film
-          const shuffledMovies = [...validMovies]
-            .sort(() => Math.random() - 0.5)
-            .slice(0, 25);
-
-          setMovies(shuffledMovies);
+            setMovies(validMovies);
+          }
         }
       } catch (error) {
         console.error("Fejl ved hentning af film:", error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchMovies();
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [processMovieData, validateImage]);
 
   const handleSubmit = async () => {
     if (selectedMovies.length === 5) {
@@ -104,28 +118,29 @@ export default function SelectMovies() {
     }
   };
 
+  // Beregn hvilke film der skal vises på den aktuelle side
+  const currentMovies = movies.slice(
+    (currentPage - 1) * moviesPerPage,
+    currentPage * moviesPerPage
+  );
+
   if (isLoading) {
     return <SimpleLoadingOverlay />;
   }
 
   return (
     <main className="min-h-screen bg-background overflow-hidden">
-      {/* Background elements */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background-lighter to-background animate-gradient" />
-
         <div className="absolute inset-0">
           <div className="absolute top-0 left-0 w-96 h-96 bg-rose-500/5 rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
         </div>
-
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#232323_1px,transparent_1px),linear-gradient(to_bottom,#232323_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-10" />
       </div>
 
-      {/* Main content */}
       <div className="relative z-10 py-8 px-4">
         <div className="max-w-7xl mx-auto">
-          {/* Header Section */}
           <div className="text-center mb-12 p-8 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/5 shadow-2xl">
             <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 tracking-tight">
               Vælg dine
@@ -141,15 +156,42 @@ export default function SelectMovies() {
               Valgte film: {selectedMovies.length}/5
             </p>
           </div>
-          {/* Movie Grid Section */}
+
           <div className="p-8 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/5 shadow-2xl mb-20">
             <MovieGrid
-              movies={movies}
+              movies={currentMovies}
               selectedMovies={selectedMovies}
               setSelectedMovies={setSelectedMovies}
             />
+
+            {/* Pagination */}
+            <div className="mt-8 flex justify-center gap-4">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 rounded-lg bg-white/10 disabled:opacity-50"
+              >
+                Forrige
+              </button>
+              <span className="px-4 py-2">
+                Side {currentPage} af {Math.ceil(movies.length / moviesPerPage)}
+              </span>
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) =>
+                    Math.min(prev + 1, Math.ceil(movies.length / moviesPerPage))
+                  )
+                }
+                disabled={
+                  currentPage === Math.ceil(movies.length / moviesPerPage)
+                }
+                className="px-4 py-2 rounded-lg bg-white/10 disabled:opacity-50"
+              >
+                Næste
+              </button>
+            </div>
           </div>
-          {/* Continue Button */}
+
           <div className="fixed bottom-8 right-8 z-20">
             <ContinueButton
               selectedMoviesCount={selectedMovies.length}
