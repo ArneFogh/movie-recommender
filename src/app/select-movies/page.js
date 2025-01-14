@@ -14,6 +14,32 @@ export default function SelectMovies() {
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Helper funktion til at checke om et billede eksisterer
+  const checkImageExists = async (url) => {
+    try {
+      const res = await fetch(url, { method: 'HEAD' });
+      return res.ok;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  // Helper funktion til at behandle film data
+  const processMovieData = (movie) => ({
+    id: movie.series_title.replace(/\s+/g, "-").toLowerCase(),
+    title: movie.series_title,
+    poster: movie.poster_link.replace(
+      "._V1_UX67_CR0,0,67,98_",
+      "._V1_SX500_"
+    ),
+    year: movie.released_year,
+    rating: movie.imdb_rating,
+    overview: movie.overview,
+    director: movie.director,
+    stars: movie.stars,
+    genre: movie.genre,
+  });
+
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -25,26 +51,25 @@ export default function SelectMovies() {
 
         if (snapshot.exists()) {
           const moviesData = snapshot.val();
-          const allMovies = Object.values(moviesData).map((movie) => ({
-            id: movie.series_title.replace(/\s+/g, "-").toLowerCase(),
-            title: movie.series_title,
-            poster: movie.poster_link.replace(
-              "._V1_UX67_CR0,0,67,98_",
-              "._V1_SX500_"
-            ),
-            year: movie.released_year,
-            rating: movie.imdb_rating,
-            overview: movie.overview,
-            director: movie.director,
-            stars: movie.stars,
-            genre: movie.genre,
-          }));
+          const allMovies = Object.values(moviesData).map(processMovieData);
 
-          // Vælg 30 tilfældige film
-          const shuffledMovies = [...allMovies].sort(() => Math.random() - 0.5);
-          const randomMovies = shuffledMovies.slice(0, 30);
+          // Validér alle film-posters parallelt
+          const moviesWithValidation = await Promise.all(
+            allMovies.map(async (movie) => {
+              const posterExists = await checkImageExists(movie.poster);
+              return { ...movie, posterExists };
+            })
+          );
 
-          setMovies(randomMovies);
+          // Filtrer film med eksisterende posters
+          const validMovies = moviesWithValidation.filter(movie => movie.posterExists);
+
+          // Vælg 30 tilfældige film fra de validerede film
+          const shuffledMovies = [...validMovies]
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 30);
+
+          setMovies(shuffledMovies);
         }
       } catch (error) {
         console.error("Fejl ved hentning af film:", error);
