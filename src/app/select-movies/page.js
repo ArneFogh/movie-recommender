@@ -1,16 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import MovieGrid from "@/components/MovieGrid";
-import { movies } from "@/data/MoviePosters";
 import ContinueButton from "@/components/ContinueButton";
 
 export default function SelectMovies() {
   const router = useRouter();
   const [selectedMovies, setSelectedMovies] = useState([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [movies, setMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        const { database } = await import("@/config/firebase");
+        const { ref, get } = await import("firebase/database");
+
+        const moviesRef = ref(database, "movies");
+        const snapshot = await get(moviesRef);
+
+        if (snapshot.exists()) {
+          const moviesData = snapshot.val();
+          const allMovies = Object.values(moviesData).map((movie) => ({
+            id: movie.series_title.replace(/\s+/g, "-").toLowerCase(),
+            title: movie.series_title,
+            poster: movie.poster_link.replace(
+              "._V1_UX67_CR0,0,67,98_",
+              "._V1_SX500_"
+            ), // Højere opløsning
+            year: movie.released_year,
+            rating: movie.imdb_rating,
+            overview: movie.overview,
+            director: movie.director,
+            stars: movie.stars,
+            genre: movie.genre,
+          }));
+
+          // Vælg 30 tilfældige film
+          const shuffledMovies = [...allMovies].sort(() => Math.random() - 0.5);
+          const randomMovies = shuffledMovies.slice(0, 30);
+
+          setMovies(randomMovies);
+        }
+      } catch (error) {
+        console.error("Fejl ved hentning af film:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMovies();
+  }, []);
 
   const handleSubmit = async () => {
     if (selectedMovies.length === 5) {
@@ -27,6 +70,10 @@ export default function SelectMovies() {
       }
     }
   };
+
+  if (isLoading) {
+    return <LoadingOverlay />;
+  }
 
   return (
     <main className="min-h-screen bg-background overflow-hidden">
