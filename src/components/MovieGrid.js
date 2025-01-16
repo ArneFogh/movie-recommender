@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useState, useCallback, memo } from "react";
 
 // Memoized MovieCard component
-const MovieCard = memo(({ movie, isSelected, onMovieClick, onImageLoad }) => {
+const MovieCard = memo(({ movie, isSelected, onMovieClick }) => {
   return (
     <div
       onClick={() => onMovieClick(movie.id)}
@@ -25,7 +25,6 @@ const MovieCard = memo(({ movie, isSelected, onMovieClick, onImageLoad }) => {
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
           quality={75}
           loading="lazy"
-          onLoad={() => onImageLoad(movie.id)}
         />
 
         {/* Selection Overlay */}
