@@ -37,7 +37,7 @@ export const processRecommendations = (
 
   // Iterate through each selected movie and its recommendations
   Object.entries(recommendationsPerMovie).forEach(
-    ([selectedMovie, movieRecs], index) => {
+    ([selectedMovie, movieRecs]) => {
       if (Array.isArray(movieRecs)) {
         movieRecs.forEach((movie) => {
           if (!seen.has(movie.Series_Title)) {
@@ -54,8 +54,8 @@ export const processRecommendations = (
               genre: Array.isArray(movie.Genre)
                 ? movie.Genre.join(", ")
                 : movie.Genre,
-              // Add reference to which movie this recommendation is based on
-              basedOn: selectedMovies[index],
+              // Use the actual selected movie title instead of array index
+              basedOn: selectedMovie,
             });
           }
         });
