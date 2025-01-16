@@ -55,5 +55,5 @@ export const processRecommendations = (recommendationsPerMovie) => {
     }
   });
 
-  return allRecommendations.slice(0, 10);
+  return allRecommendations.slice(0, 25);
 };

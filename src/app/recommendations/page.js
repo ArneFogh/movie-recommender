@@ -1,4 +1,3 @@
-// src/app/recommendations/page.js
 "use client";
 
 import { useState, useEffect } from "react";
@@ -11,6 +10,8 @@ export default function RecommendationsPage() {
   const [expandedMovie, setExpandedMovie] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const moviesPerPage = 10;
 
   useEffect(() => {
     // Load recommendations from localStorage
@@ -27,6 +28,12 @@ export default function RecommendationsPage() {
         : [...prev, movieId]
     );
   };
+
+  // Calculate pagination
+  const totalPages = Math.ceil(recommendations.length / moviesPerPage);
+  const startIndex = (currentPage - 1) * moviesPerPage;
+  const endIndex = startIndex + moviesPerPage;
+  const currentMovies = recommendations.slice(startIndex, endIndex);
 
   if (recommendations.length === 0) {
     return (
@@ -92,7 +99,7 @@ export default function RecommendationsPage() {
           </div>
 
           {/* Movie Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-8">
             {recommendations.map((movie) => (
               <div key={movie.id} className="group relative">
                 {/* Movie Card */}
