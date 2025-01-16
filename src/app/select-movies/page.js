@@ -6,6 +6,10 @@ import SimpleLoadingOverlay from "@/components/SimpleLoadingOverlay";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import MovieGrid from "@/components/MovieGrid";
 import ContinueButton from "@/components/ContinueButton";
+import {
+  getRecommendations,
+  processRecommendations,
+} from "@/services/movieService";
 
 export default function SelectMovies() {
   const router = useRouter();
@@ -106,12 +110,33 @@ export default function SelectMovies() {
     if (selectedMovies.length === 5) {
       setIsAnalyzing(true);
       try {
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-        localStorage.setItem("selectedMovies", JSON.stringify(selectedMovies));
+        // Get selected movie titles
+        const selectedTitles = selectedMovies
+          .map((movieId) => movies.find((m) => m.id === movieId)?.title)
+          .filter(Boolean);
+
+        // Get recommendations from ML model
+        const recommendationsData = await getRecommendations(selectedTitles);
+
+        // Process and store recommendations
+        const processedRecommendations =
+          processRecommendations(recommendationsData);
+        localStorage.setItem(
+          "movieRecommendations",
+          JSON.stringify(processedRecommendations)
+        );
+
         router.push("/recommendations");
       } catch (error) {
-        console.error("Fejl ved analyse af film:", error);
-        alert("Der skete en fejl under analysen. Prøv venligst igen.");
+        console.error("Error analyzing movies:", error);
+        // Log mere detaljeret fejlinformation
+        if (error.response) {
+          console.error("Response data:", error.response.data);
+          console.error("Response status:", error.response.status);
+        }
+        alert(
+          `Der skete en fejl under analysen: ${error.message}. Check browser console for detaljer.`
+        );
       } finally {
         setIsAnalyzing(false);
       }

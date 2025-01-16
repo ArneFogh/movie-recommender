@@ -1,19 +1,24 @@
+// src/app/recommendations/page.js
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  Heart,
-  Info,
-  ArrowLeft,
-} from "lucide-react";
-import { recommendedMovies } from "@/data/recommendedMovies";
+import { Heart, Info, ArrowLeft } from "lucide-react";
 import ExpandedMovieModal from "@/components/ExpandedMovieModal";
 
 export default function RecommendationsPage() {
   const [expandedMovie, setExpandedMovie] = useState(null);
   const [favorites, setFavorites] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
+
+  useEffect(() => {
+    // Load recommendations from localStorage
+    const storedRecommendations = localStorage.getItem("movieRecommendations");
+    if (storedRecommendations) {
+      setRecommendations(JSON.parse(storedRecommendations));
+    }
+  }, []);
 
   const toggleFavorite = (movieId) => {
     setFavorites((prev) =>
@@ -23,17 +28,31 @@ export default function RecommendationsPage() {
     );
   };
 
+  if (recommendations.length === 0) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center p-8">
+          <h2 className="text-2xl mb-4">Ingen anbefalinger fundet</h2>
+          <Link
+            href="/select-movies"
+            className="inline-block px-6 py-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 transition-colors"
+          >
+            Vælg film for at få anbefalinger
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-background overflow-hidden">
       {/* Background elements */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background-lighter to-background animate-gradient" />
-
         <div className="absolute inset-0">
           <div className="absolute top-0 left-0 w-96 h-96 bg-rose-500/5 rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
         </div>
-
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#232323_1px,transparent_1px),linear-gradient(to_bottom,#232323_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-10" />
       </div>
 
@@ -52,8 +71,8 @@ export default function RecommendationsPage() {
                   </span>
                 </h1>
                 <p className="text-gray-400 text-lg">
-                  Baseret på dine filmvalg har vi fundet 10 film vi tror du vil
-                  elske
+                  Baseret på dine filmvalg har vi fundet{" "}
+                  {recommendations.length} film vi tror du vil elske
                 </p>
               </div>
               <Link
@@ -74,7 +93,7 @@ export default function RecommendationsPage() {
 
           {/* Movie Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-            {recommendedMovies.map((movie) => (
+            {recommendations.map((movie) => (
               <div key={movie.id} className="group relative">
                 {/* Movie Card */}
                 <div
@@ -144,7 +163,7 @@ export default function RecommendationsPage() {
           {/* Expanded Movie Modal */}
           {expandedMovie && (
             <ExpandedMovieModal
-              movie={recommendedMovies.find((m) => m.id === expandedMovie)}
+              movie={recommendations.find((m) => m.id === expandedMovie)}
               onClose={() => setExpandedMovie(null)}
             />
           )}
