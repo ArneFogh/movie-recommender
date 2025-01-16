@@ -9,28 +9,15 @@ import ExpandedMovieModal from "@/components/ExpandedMovieModal";
 const PLACEHOLDER_IMAGE = "/placeholder-movie.jpg";
 
 const getOptimizedImageUrl = (posterUrl) => {
-  // Log initial poster URL
-  console.log("Processing poster URL:", posterUrl);
-
   if (!posterUrl || typeof posterUrl !== "string") {
-    console.log("No valid poster URL, using placeholder");
     return PLACEHOLDER_IMAGE;
   }
 
   try {
-    // Extract base URL without size parameters
     const baseUrl = posterUrl.split("._V1_")[0];
-    console.log("Base URL:", baseUrl);
-
-    // Hvis URL'en indeholder ._V1_, prøv at optimere den
     if (posterUrl.includes("._V1_")) {
-      const optimizedUrl = `${baseUrl}._V1_SX500.jpg`;
-      console.log("Optimized URL:", optimizedUrl);
-      return optimizedUrl;
+      return `${baseUrl}._V1_SX500.jpg`;
     }
-
-    // Hvis URL'en ikke følger det forventede format, brug placeholder
-    console.log("Invalid URL format, using placeholder");
     return PLACEHOLDER_IMAGE;
   } catch (error) {
     console.warn("Error processing image URL:", error);
@@ -38,33 +25,33 @@ const getOptimizedImageUrl = (posterUrl) => {
   }
 };
 
-const MovieCard = ({ movie, isFavorite, onFavoriteToggle, onExpandMovie }) => {
+const MovieCard = ({
+  movie,
+  isFavorite,
+  onFavoriteToggle,
+  onExpandMovie,
+  isSelected,
+}) => {
   return (
-    <div className="group relative">
+    <div
+      className={`group relative ${isSelected ? "ring-2 ring-rose-500" : ""}`}
+    >
       <div
         className="relative h-full rounded-xl overflow-hidden transition-all duration-300
         bg-black/20 backdrop-blur-sm border border-white/10 hover:border-white/20
         hover:scale-105 hover:shadow-2xl"
       >
-        {/* Optimeret poster */}
         <div className="relative w-full aspect-[2/3]">
           <Image
             src={getOptimizedImageUrl(movie.poster)}
             alt={movie.title}
             fill
             className="object-cover"
-            sizes="(max-width: 640px) 100vw, 
-                   (max-width: 768px) 50vw,
-                   (max-width: 1024px) 33vw,
-                   25vw"
-            priority={false}
-            quality={85}
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             loading="lazy"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkMj4xLy0vLi44QT04OEA6Oi0tRUlCRUpJXFxcOEdKSV9BXEFBXF3/2wBDARUXFx4aHR4eHV1fOjQ6XV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
           />
         </div>
 
-        {/* Hover Overlay */}
         <div
           className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent 
           opacity-0 group-hover:opacity-100 transition-opacity duration-300
@@ -75,12 +62,10 @@ const MovieCard = ({ movie, isFavorite, onFavoriteToggle, onExpandMovie }) => {
             {movie.year} • {movie.runtime}
           </p>
 
-          {/* Action Buttons */}
           <div className="flex justify-center gap-4">
             <button
               onClick={() => onExpandMovie(movie.id)}
-              className="p-2 rounded-full bg-amber-500/80 hover:bg-amber-500 
-                transition-colors backdrop-blur-sm"
+              className="p-2 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors backdrop-blur-sm"
             >
               <Info className="w-5 h-5 text-black" />
             </button>
@@ -108,14 +93,73 @@ const MovieCard = ({ movie, isFavorite, onFavoriteToggle, onExpandMovie }) => {
   );
 };
 
+const SelectedMoviesRow = ({
+  selectedMovies,
+  favorites,
+  onFavoriteToggle,
+  onExpandMovie,
+}) => {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      {selectedMovies.map((movie) => (
+        <MovieCard
+          key={movie.id}
+          movie={movie}
+          isSelected={true}
+          isFavorite={favorites.includes(movie.id)}
+          onFavoriteToggle={onFavoriteToggle}
+          onExpandMovie={onExpandMovie}
+        />
+      ))}
+    </div>
+  );
+};
+
+const RecommendationRow = ({
+  selectedMovie,
+  recommendations,
+  favorites,
+  onFavoriteToggle,
+  onExpandMovie,
+}) => {
+  return (
+    <div className="p-6 rounded-xl bg-black/30 backdrop-blur-xl border border-white/10">
+      <div className="mb-6">
+        <h3 className="text-xl font-bold mb-4">
+          Anbefalinger baseret på{" "}
+          <span className="text-rose-500">{selectedMovie.title}</span>
+        </h3>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {recommendations.map((movie) => (
+          <MovieCard
+            key={movie.id}
+            movie={movie}
+            isFavorite={favorites.includes(movie.id)}
+            onFavoriteToggle={onFavoriteToggle}
+            onExpandMovie={onExpandMovie}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default function RecommendationsPage() {
   const [expandedMovie, setExpandedMovie] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
+  const [selectedMovies, setSelectedMovies] = useState([]);
+
   useEffect(() => {
     const storedRecommendations = localStorage.getItem("movieRecommendations");
+    const storedSelectedMovies = localStorage.getItem("selectedMovies");
     if (storedRecommendations) {
       setRecommendations(JSON.parse(storedRecommendations));
+    }
+    if (storedSelectedMovies) {
+      setSelectedMovies(JSON.parse(storedSelectedMovies));
     }
   }, []);
 
@@ -127,8 +171,20 @@ export default function RecommendationsPage() {
     );
   };
 
-  // Vi bruger alle anbefalinger direkte uden paginering
-  const currentMovies = recommendations;
+  // Gruppér anbefalinger efter valgte film
+  const groupedRecommendations = selectedMovies
+    .map((selectedMovie) => {
+      // Find anbefalinger baseret på den valgte films titel
+      const movieRecommendations = recommendations
+        .filter((rec) => rec.basedOn === selectedMovie.title)
+        .slice(0, 5); // Vis kun 5 anbefalinger per film
+
+      return {
+        selectedMovie,
+        recommendations: movieRecommendations,
+      };
+    })
+    .filter((group) => group.recommendations.length > 0);
 
   if (recommendations.length === 0) {
     return (
@@ -193,23 +249,37 @@ export default function RecommendationsPage() {
             </div>
           </div>
 
-          {/* Movie Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-8">
-            {currentMovies.map((movie) => (
-              <MovieCard
-                key={movie.id}
-                movie={movie}
-                isFavorite={favorites.includes(movie.id)}
+          {/* Selected Movies Section */}
+          <div className="mb-8 p-6 rounded-xl bg-black/30 backdrop-blur-xl border border-white/10">
+            <h2 className="text-2xl font-bold mb-6">Dine valgte film</h2>
+            <SelectedMoviesRow
+              selectedMovies={selectedMovies}
+              favorites={favorites}
+              onFavoriteToggle={toggleFavorite}
+              onExpandMovie={setExpandedMovie}
+            />
+          </div>
+
+          {/* Recommendations Sections */}
+          <div className="space-y-8">
+            {groupedRecommendations.map((group) => (
+              <RecommendationRow
+                key={group.selectedMovie.id}
+                selectedMovie={group.selectedMovie}
+                recommendations={group.recommendations}
+                favorites={favorites}
                 onFavoriteToggle={toggleFavorite}
                 onExpandMovie={setExpandedMovie}
               />
             ))}
           </div>
 
-          {/* Expanded Movie Modal */}
+          {/* Movie Modal */}
           {expandedMovie && (
             <ExpandedMovieModal
-              movie={recommendations.find((m) => m.id === expandedMovie)}
+              movie={[...recommendations, ...selectedMovies].find(
+                (m) => m.id === expandedMovie
+              )}
               onClose={() => setExpandedMovie(null)}
             />
           )}

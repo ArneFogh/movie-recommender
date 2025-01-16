@@ -28,32 +28,60 @@ export const getRecommendations = async (selectedMovies) => {
   }
 };
 
-export const processRecommendations = (recommendationsPerMovie) => {
+export const processRecommendations = (
+  recommendationsPerMovie,
+  selectedMovies
+) => {
   const seen = new Set();
   const allRecommendations = [];
 
-  Object.values(recommendationsPerMovie).forEach((movieRecs) => {
-    if (Array.isArray(movieRecs)) {
-      movieRecs.forEach((movie) => {
-        if (!seen.has(movie.Series_Title)) {
-          seen.add(movie.Series_Title);
-          allRecommendations.push({
-            id: movie.Series_Title.toLowerCase().replace(/\s+/g, "-"),
-            title: movie.Series_Title,
-            year: movie.Released_Year,
-            director: movie.Director,
-            rating: movie.IMDB_Rating,
-            overview: movie.Overview,
-            runtime: movie.Runtime,
-            poster: movie.Poster_Link,
-            genre: Array.isArray(movie.Genre)
-              ? movie.Genre.join(", ")
-              : movie.Genre,
-          });
-        }
-      });
+  // Iterate through each selected movie and its recommendations
+  Object.entries(recommendationsPerMovie).forEach(
+    ([selectedMovie, movieRecs], index) => {
+      if (Array.isArray(movieRecs)) {
+        movieRecs.forEach((movie) => {
+          if (!seen.has(movie.Series_Title)) {
+            seen.add(movie.Series_Title);
+            allRecommendations.push({
+              id: movie.Series_Title.toLowerCase().replace(/\s+/g, "-"),
+              title: movie.Series_Title,
+              year: movie.Released_Year,
+              director: movie.Director,
+              rating: movie.IMDB_Rating,
+              overview: movie.Overview,
+              runtime: movie.Runtime,
+              poster: movie.Poster_Link,
+              genre: Array.isArray(movie.Genre)
+                ? movie.Genre.join(", ")
+                : movie.Genre,
+              // Add reference to which movie this recommendation is based on
+              basedOn: selectedMovies[index],
+            });
+          }
+        });
+      }
     }
-  });
+  );
 
-  return allRecommendations.slice(0, 25);
+  return allRecommendations;
+};
+
+// New function to process selected movies
+export const processSelectedMovies = (movieTitles, allMovies) => {
+  return movieTitles
+    .map((title) => {
+      const movie = allMovies.find((m) => m.title === title);
+      if (!movie) return null;
+      return {
+        id: movie.id,
+        title: movie.title,
+        year: movie.year,
+        director: movie.director,
+        rating: movie.rating,
+        runtime: movie.runtime,
+        poster: movie.poster,
+        genre: movie.genre,
+      };
+    })
+    .filter(Boolean);
 };

@@ -9,6 +9,7 @@ import ContinueButton from "@/components/ContinueButton";
 import {
   getRecommendations,
   processRecommendations,
+  processSelectedMovies,
 } from "@/services/movieService";
 
 export default function SelectMovies() {
@@ -35,6 +36,7 @@ export default function SelectMovies() {
       director: movie.director,
       stars: movie.stars,
       genre: movie.genre,
+      runtime: movie.runtime,
     };
   }, []);
 
@@ -110,17 +112,29 @@ export default function SelectMovies() {
     if (selectedMovies.length === 5) {
       setIsAnalyzing(true);
       try {
-        // Get selected movie titles
-        const selectedTitles = selectedMovies
-          .map((movieId) => movies.find((m) => m.id === movieId)?.title)
+        // Get selected movies with full information
+        const selectedMoviesInfo = selectedMovies
+          .map((movieId) => movies.find((m) => m.id === movieId))
           .filter(Boolean);
+
+        // Get titles for the API request
+        const selectedTitles = selectedMoviesInfo.map((movie) => movie.title);
+
+        // Store selected movies information
+        localStorage.setItem(
+          "selectedMovies",
+          JSON.stringify(selectedMoviesInfo)
+        );
 
         // Get recommendations from ML model
         const recommendationsData = await getRecommendations(selectedTitles);
 
         // Process and store recommendations
-        const processedRecommendations =
-          processRecommendations(recommendationsData);
+        const processedRecommendations = processRecommendations(
+          recommendationsData,
+          selectedTitles
+        );
+
         localStorage.setItem(
           "movieRecommendations",
           JSON.stringify(processedRecommendations)
@@ -129,7 +143,6 @@ export default function SelectMovies() {
         router.push("/recommendations");
       } catch (error) {
         console.error("Error analyzing movies:", error);
-        // Log mere detaljeret fejlinformation
         if (error.response) {
           console.error("Response data:", error.response.data);
           console.error("Response status:", error.response.status);
